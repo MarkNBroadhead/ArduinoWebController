@@ -17,8 +17,8 @@ const int PIN_1 = 0;
 const int PIN_2 = 1;
 const int PIN_3 = 2;
 const int PIN_4 = 3;
-const int MOTOR_DELAY = 500;
-
+const int PIN_TIME_ON = 500;
+#define BUFFER_SIZE 100  //defines the buffer size.  100 gives plenty of room.  reduce size if more ram is needed.
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -39,28 +39,26 @@ void setup() {
   pinMode(PIN_4, OUTPUT);   
 }
 
-#define BUFSIZ 100  //defines the buffer size.  100 gives plenty of room.  reduce size if more ram is needed.
-
-
 void loop() {
   // listen for incoming clients
   EthernetClient client = server.available();
-  char clientline[BUFSIZ];
+  char clientline[BUFFER_SIZE];
   int index = 0;
-
+  // Serial.println("looping");
   if (client) {
     Serial.println("new request");
     boolean current_line_is_blank = true;
     index = 0;
     bool haveRead = false;
     while (client.connected()) {
+      Serial.println("Client is connected");
       if (client.available()) {
         char c = client.read();
         if (c != '\n' && c != '\r') {
           clientline[index] = c;
           index++;
-          if (index >= BUFSIZ)
-            index = BUFSIZ -1;
+          if (index >= BUFFER_SIZE)
+            index = BUFFER_SIZE -1;
           continue;
         }
         clientline[index] = 0;
@@ -69,37 +67,37 @@ void loop() {
         if (strstr(clientline, "GET /") != 0) {
           if (strstr(clientline, "GET / ") != 0) {  //If you are going to the homepage, the filename is set to the rootFileName
             (strstr(clientline, " HTTP"))[0] = 0;  //gets rid of everything from HTTP to the end.
-            
+            Serial.println("Sending website");
             sendWebsite(client);
-            
           } 
-          // else {
-          //   client.println("HTTP/1.1 404 Not Found");
-          //   client.println("Content-Type: text/html");
-          //   client.println();
-          //   client.println("<h2>File Not Found!</h2>");
-          // }
           break;
         }
-      }
-      else if(!haveRead) {
-        Serial.println(clientline);
-        // Get posted data
-        if (strstr(clientline, "POST /") != 0) {
-          if (strstr(clientline, "pin1") != 0) {
-            moveMotor(PIN_1, MOTOR_DELAY);
+        if(!haveRead) {
+          Serial.println(clientline);
+          // Get posted data
+          if (strstr(clientline, "POST /") != 0) {
+            Serial.println("Post received");
+            if (strstr(clientline, "pin1") != 0) {
+              moveMotor(PIN_1, PIN_TIME_ON);
+            }
+            else if (strstr(clientline, "pin2") != 0) {
+              moveMotor(PIN_2, PIN_TIME_ON);
+            }
+            else if (strstr(clientline, "pin3") != 0) {
+              moveMotor(PIN_3, PIN_TIME_ON);
+            }
+            else if (strstr(clientline, "pin4") != 0) {
+              moveMotor(PIN_4, PIN_TIME_ON);
+            }
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-Type: text/html");
+            client.println();
+            delay(1);
+            client.stop();
+            Serial.println("client disconnected from inside post if statement");
           }
-          else if (strstr(clientline, "pin2") != 0) {
-            moveMotor(PIN_2, MOTOR_DELAY);
-          }
-          else if (strstr(clientline, "pin3") != 0) {
-            moveMotor(PIN_3, MOTOR_DELAY);
-          }
-          else if (strstr(clientline, "pin4") != 0) {
-            moveMotor(PIN_4, MOTOR_DELAY);
-          }
+          //haveRead = true;
         }
-        haveRead = true;
       }
     }
 
@@ -126,7 +124,7 @@ void sendWebsite(EthernetClient client) {
   client.println("<button onclick=\"sendAjax('pin2')\">Pin 2</button>");
   client.println("<button onclick=\"sendAjax('pin3')\">Pin 3</button>");
   client.println("<button onclick=\"sendAjax('pin4')\">Pin 4</button>");
-  client.println("<script>function sendAjax(pinName) {xmlhttp=new XMLHttpRequest();xmlhttp.open('POST',pinName,true);xmlhttp.send(); }</script>");
+  client.println("<script>function sendAjax(pinName) {xhr=new XMLHttpRequest();xhr.open('POST',pinName,true);xhr.send(); }</script>");
 }
 
 
