@@ -1,4 +1,4 @@
-# Web-based Arduino Pin Chanter
+# Web-based Arduino Pin Controller
 ## Description
 This project creates a basic web server to provide instructions to the Arduino pins. It is meant to be used in a future Arduino robot project.
 
