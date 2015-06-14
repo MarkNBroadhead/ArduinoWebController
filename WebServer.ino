@@ -49,7 +49,6 @@ void loop() {
     Serial.println("new request");
     boolean current_line_is_blank = true;
     index = 0;
-    bool haveRead = false;
     while (client.connected()) {
       Serial.println("Client is connected");
       if (client.available()) {
@@ -72,31 +71,28 @@ void loop() {
           } 
           break;
         }
-        if(!haveRead) {
-          Serial.println(clientline);
-          // Get posted data
-          if (strstr(clientline, "POST /") != 0) {
-            Serial.println("Post received");
-            if (strstr(clientline, "pin1") != 0) {
-              moveMotor(PIN_1, PIN_TIME_ON);
-            }
-            else if (strstr(clientline, "pin2") != 0) {
-              moveMotor(PIN_2, PIN_TIME_ON);
-            }
-            else if (strstr(clientline, "pin3") != 0) {
-              moveMotor(PIN_3, PIN_TIME_ON);
-            }
-            else if (strstr(clientline, "pin4") != 0) {
-              moveMotor(PIN_4, PIN_TIME_ON);
-            }
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-Type: text/html");
-            client.println();
-            delay(1);
-            client.stop();
-            Serial.println("client disconnected from inside post if statement");
+        Serial.println(clientline);
+        // Get posted data
+        if (strstr(clientline, "POST /") != 0) {
+          Serial.println("Post received");
+          if (strstr(clientline, "pin1") != 0) {
+            moveMotor(PIN_1, PIN_TIME_ON);
           }
-          //haveRead = true;
+          else if (strstr(clientline, "pin2") != 0) {
+            moveMotor(PIN_2, PIN_TIME_ON);
+          }
+          else if (strstr(clientline, "pin3") != 0) {
+            moveMotor(PIN_3, PIN_TIME_ON);
+          }
+          else if (strstr(clientline, "pin4") != 0) {
+            moveMotor(PIN_4, PIN_TIME_ON);
+          }
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html");
+          client.println();
+          delay(1);
+          client.stop();
+          Serial.println("client disconnected from inside post if statement");
         }
       }
     }
@@ -126,7 +122,3 @@ void sendWebsite(EthernetClient client) {
   client.println("<button onclick=\"sendAjax('pin4')\">Pin 4</button>");
   client.println("<script>function sendAjax(pinName) {xhr=new XMLHttpRequest();xhr.open('POST',pinName,true);xhr.send(); }</script>");
 }
-
-
-
-
