@@ -68,30 +68,21 @@ void loop() {
         // Send Homepage
         if (strstr(clientline, "GET /") != 0) {
           if (strstr(clientline, "GET / ") != 0) {  //If you are going to the homepage, the filename is set to the rootFileName
-            // filename = rootFileName;
-          }
-          if (strstr(clientline, "GET /") != 0) {
-            // if (!filename) filename = clientline + 5;  //gets rid of the GET / in the filename
             (strstr(clientline, " HTTP"))[0] = 0;  //gets rid of everything from HTTP to the end.
             
-            client.println("HTTP/1.1 200 OK");
-            client.println("Content-Type: text/html");
-            client.println();
-            client.println("<form action = '/pin1' method = 'post'><button>Pin 1</button></form>");
-            client.println("<form action = '/pin2' method = 'post'><button>Pin 2</button></form>");
-            client.println("<form action = '/pin3' method = 'post'><button>Pin 3</button></form>");
-            client.println("<form action = '/pin4' method = 'post'><button>Pin 4</button></form>");
+            sendWebsite(client);
+            
           } 
-          else {
-            client.println("HTTP/1.1 404 Not Found");
-            client.println("Content-Type: text/html");
-            client.println();
-            client.println("<h2>File Not Found!</h2>");
-          }
+          // else {
+          //   client.println("HTTP/1.1 404 Not Found");
+          //   client.println("Content-Type: text/html");
+          //   client.println();
+          //   client.println("<h2>File Not Found!</h2>");
+          // }
           break;
         }
       }
-      if (!client.available() && !haveRead) {
+      else if(!haveRead) {
         Serial.println(clientline);
         // Get posted data
         if (strstr(clientline, "POST /") != 0) {
@@ -109,13 +100,11 @@ void loop() {
           }
         }
         haveRead = true;
-        client.stop();
-        Serial.println("client disconnected");
       }
     }
 
     // give the web browser time to receive the data
-    delay(1);
+    // delay(1);
     // close the connection:
     client.stop();
     Serial.println("client disconnected");
@@ -128,3 +117,18 @@ void moveMotor(int pin, int delayTime) {
   digitalWrite(pin, LOW);
   delay(delayTime);
 }
+
+void sendWebsite(EthernetClient client) {
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println();
+  client.println("<script>function sendAjax(pinNum){ xmlhttp=new XMLHttpRequest();xmlhttp.open('GET',pinNum,true);xmlhttp.send(); }</script>");
+  client.println("<button onclick='sendAjax(pin1)'>Pin 1</button>");
+  client.println("<button onclick='sendAjax(pin2)'>Pin 2</button>");
+  client.println("<button onclick='sendAjax(pin3)'>Pin 3</button>");
+  client.println("<button onclick='sendAjax(pin4)'>Pin 4</button>");
+}
+
+
+
+
