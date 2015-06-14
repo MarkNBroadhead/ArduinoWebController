@@ -122,11 +122,11 @@ void sendWebsite(EthernetClient client) {
   client.println("HTTP/1.1 200 OK");
   client.println("Content-Type: text/html");
   client.println();
-  client.println("<script>function sendAjax(pinName){ xmlhttp=new XMLHttpRequest();xmlhttp.open('GET',pinName,true);xmlhttp.send(); }</script>");
-  client.println("<button onclick='sendAjax(pin1)'>Pin 1</button>");
-  client.println("<button onclick='sendAjax(pin2)'>Pin 2</button>");
-  client.println("<button onclick='sendAjax(pin3)'>Pin 3</button>");
-  client.println("<button onclick='sendAjax(pin4)'>Pin 4</button>");
+  client.println("<button onclick=\"sendAjax('pin1')\">Pin 1</button>");
+  client.println("<button onclick=\"sendAjax('pin2')\">Pin 2</button>");
+  client.println("<button onclick=\"sendAjax('pin3')\">Pin 3</button>");
+  client.println("<button onclick=\"sendAjax('pin4')\">Pin 4</button>");
+  client.println("<script>function sendAjax(pinName) {xmlhttp=new XMLHttpRequest();xmlhttp.open('POST',pinName,true);xmlhttp.send(); }</script>");
 }
 
 
